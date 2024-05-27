@@ -98,8 +98,8 @@ async function runStartup() {
         if (err) console.error(err);
     });
 
-    const IP = (await execSync('curl -s https://ipv4.icanhazip.com')).toString().trim();
-    const ISP = (await execSync('curl -s https://speed.cloudflare.com/meta')).toString()
+    const IP = (await execSync('wget -qO- https://ipv4.icanhazip.com')).toString().trim();
+    const ISP = (await execSync('wget -qO- https://speed.cloudflare.com/meta')).toString()
         .split('"')
         .filter((_, i) => [25, 17].includes(i))
         .join('-')
