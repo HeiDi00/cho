@@ -13,3 +13,4 @@ RUN apk update && \
 CMD ["node", "index.js"]
 
 EXPOSE 8080
+USER 10001
