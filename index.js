@@ -57,7 +57,8 @@ async function getISPInfo() {
     try {
         const response = await axios.get('https://speed.cloudflare.com/meta');
         const data = response.data;
-        const ispInfo = data.split('"')
+        const ispInfo = JSON.stringify(data)
+            .split('"')
             .filter((_, i) => [25, 17].includes(i))
             .join('-')
             .replace(/ /g, '_');
