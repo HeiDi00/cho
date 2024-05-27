@@ -43,6 +43,31 @@ async function downloadFile(url, dest) {
     });
 }
 
+async function getExternalIP() {
+    try {
+        const response = await axios.get('https://ipv4.icanhazip.com');
+        return response.data.trim();
+    } catch (error) {
+        console.error('Error fetching IP:', error);
+        throw error;
+    }
+}
+
+async function getISPInfo() {
+    try {
+        const response = await axios.get('https://speed.cloudflare.com/meta');
+        const data = response.data;
+        const ispInfo = data.split('"')
+            .filter((_, i) => [25, 17].includes(i))
+            .join('-')
+            .replace(/ /g, '_');
+        return ispInfo;
+    } catch (error) {
+        console.error('Error fetching ISP info:', error);
+        throw error;
+    }
+}
+
 async function runStartup() {
     const UUID = generateUUID();
     const arch = os.arch();
@@ -98,12 +123,8 @@ async function runStartup() {
         if (err) console.error(err);
     });
 
-    const IP = (await execSync('wget -qO- https://ipv4.icanhazip.com')).toString().trim();
-    const ISP = (await execSync('wget -qO- https://speed.cloudflare.com/meta')).toString()
-        .split('"')
-        .filter((_, i) => [25, 17].includes(i))
-        .join('-')
-        .replace(/ /g, '_');
+    const IP = await getExternalIP();
+    const ISP = await getISPInfo();
 
     const list = `vless://${UUID}@${IP}:${SERVER_PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${SNI}&fp=chrome&pbk=${publicKey}&sid=${shortid}&type=tcp&headerType=none#${ISP}`;
     fs.writeFileSync('list.txt', list);
